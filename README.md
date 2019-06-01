@@ -6,5 +6,5 @@ First version with magic numbers for GPIO pins and RGB LED code will sort these 
 
 The [RFM9XLoRa-NetMF](https://github.com/KiwiBryn/RFM9XLoRa-NetMF) and [Silicon Labs Si7005](https://www.silabs.com/products/sensors/humidity/si7005) temperature and humidity sensor drivers are my own work.
 
-New Zealand designed and Assembled 
+New Zealand designed and Assembled by [Ingenuity Micro](https://ingenuitymicro.com/)
 ![Nexus Client](NexusWithS17005.jpg)
