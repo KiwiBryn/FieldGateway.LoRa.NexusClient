@@ -35,7 +35,7 @@ namespace devMobile.IoT.Nexus.FieldGateway
 
 	class NexusClient
 	{
-		Rfm9XDevice rfm9XDevice;
+		private readonly Rfm9XDevice rfm9XDevice;
 		private readonly TimeSpan dueTime = new TimeSpan(0, 0, 15);
 		private readonly TimeSpan periodTime = new TimeSpan(0, 0, 60);
 		private readonly SiliconLabsSI7005 sensor = new SiliconLabsSI7005();
