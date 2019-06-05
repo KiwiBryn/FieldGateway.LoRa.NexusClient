@@ -27,13 +27,14 @@ namespace devMobile.NetMF.Sensor
       private const int ClockRateKHz = 400;
       private const int TransactionTimeoutMilliseconds = 1000;
 
-      private const int RegisterIdConiguration = 0x03;
+      private const int RegisterIdConfiguration = 0x03;
       private const int RegisterIdStatus = 0x00;
-      private const byte RegisterIdDeviceId = 0x11; //
-      private const byte STATUS_RDY_MASK = 0x01;
-      private const byte CMD_MEASURE_TEMP = 0x11;    //perform a humility measurement
-      private const byte CMD_MEASURE_HUMI = 0x01;
-      private const byte REG_DATA_H = 0x01;
+      private const byte RegisterIdDeviceId = 0x11;
+		private const byte RegisterDeviceId = 0x50;
+		private const byte StatusMask = 0x01;
+      private const byte CommandMeasureTemperature = 0x11;  
+      private const byte CommandMeasureHumidity = 0x01;
+      private const byte ConversionDataRegister = 0x01;
 
 
       public SiliconLabsSI7005()
@@ -52,10 +53,18 @@ namespace devMobile.NetMF.Sensor
 
             if (device.Execute(action, TransactionTimeoutMilliseconds) == 0)
 				{
+					// The first read always fails
+				}
+				if (device.Execute(action, TransactionTimeoutMilliseconds) == 0)
+				{
 					throw new Exception("Unable to read DeviceId");
 				}
+				if (readBuffer[0] != RegisterDeviceId)
+				{
+					throw new Exception("DeviceId invalid");
+				}
 			}
-      }
+		}
 
 
 
@@ -65,7 +74,7 @@ namespace devMobile.NetMF.Sensor
          {
             //Debug.Print("Temperature Measurement start");
 
-            byte[] CmdBuffer = { RegisterIdConiguration, CMD_MEASURE_TEMP };
+            byte[] CmdBuffer = { RegisterIdConfiguration, CommandMeasureTemperature };
 
             I2CDevice.I2CTransaction[] CmdAction = new I2CDevice.I2CTransaction[] 
             { 
@@ -98,16 +107,16 @@ namespace devMobile.NetMF.Sensor
                   throw new Exception("Unable to read status register");
                }
 
-               if ((WaitReadBuffer[RegisterIdStatus] & STATUS_RDY_MASK) != STATUS_RDY_MASK)
+               if ((WaitReadBuffer[RegisterIdStatus] & StatusMask) != StatusMask)
                {
                   conversionInProgress = false;
                }
             } while (conversionInProgress);
 
 
-            //Debug.Print("Measurement read");
+            // Debug.Print("Measurement read");
             // Read temperature value
-            byte[] valueWriteBuffer = { REG_DATA_H };
+            byte[] valueWriteBuffer = { ConversionDataRegister };
             byte[] valueReadBuffer = new byte[2];
 
             I2CDevice.I2CTransaction[] valueAction = new I2CDevice.I2CTransaction[] 
@@ -146,7 +155,7 @@ namespace devMobile.NetMF.Sensor
          {
             //Debug.Print("Humidity Measurement start");
 
-            byte[] CmdBuffer = { RegisterIdConiguration, CMD_MEASURE_HUMI };
+            byte[] CmdBuffer = { RegisterIdConfiguration, CommandMeasureHumidity };
 
             I2CDevice.I2CTransaction[] CmdAction = new I2CDevice.I2CTransaction[] 
             { 
@@ -178,7 +187,7 @@ namespace devMobile.NetMF.Sensor
                   throw new Exception("Unable to read status register");
                }
 
-               if ((ValueReadBuffer[RegisterIdStatus] & STATUS_RDY_MASK) != STATUS_RDY_MASK)
+               if ((ValueReadBuffer[RegisterIdStatus] & StatusMask) != StatusMask)
                {
                   humidityConversionInProgress = false;
                }
@@ -186,7 +195,7 @@ namespace devMobile.NetMF.Sensor
 
 
             //Debug.Print("Measurement read");
-            byte[] valueWriteBuffer = { REG_DATA_H };
+            byte[] valueWriteBuffer = { ConversionDataRegister };
             byte[] valueRreadBuffer = new byte[2];
 
             I2CDevice.I2CTransaction[] valueAction = new I2CDevice.I2CTransaction[] 
